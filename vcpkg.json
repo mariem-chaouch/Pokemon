@@ -1,0 +1,14 @@
+{
+    "name": "pokemon-tp",
+    "version-string": "1.0.0",
+    "builtin-baseline": "a1cae005c39be7b18ba319fced856b68d7276271",
+    "dependencies": [
+        "sfml"
+    ],
+    "overrides": [
+        {
+            "name": "sfml",
+            "version": "2.6.2"
+        }
+    ]
+}
