@@ -1,5 +1,8 @@
 #include <string>
 using std::string;
+/**
+ * Cette classe représente un Pokémon.
+ **/
 class Pokemon {
 private:
     int id;

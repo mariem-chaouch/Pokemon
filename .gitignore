@@ -1,0 +1,16 @@
+# CLion
+.idea/
+
+# CMake build directories
+cmake-build-*/
+
+# vcpkg
+vcpkg_installed/
+
+# Compiled files
+*.exe
+*.dll
+*.obj
+*.o
+*.lib
+*.pdb

@@ -6,7 +6,7 @@ int Pokemon ::countpok=0;
 //constructeur
 Pokemon :: Pokemon(int id,string name,double hitPoint,double hitPointMax,double attack,double defense,int generation){
     this->id=id;
-    this->name=name;
+    this->name=name;    
     this->hitPoint=hitPoint;
     this->hitPointMax=hitPointMax;
     this->attack=attack;
@@ -23,9 +23,10 @@ Pokemon::Pokemon(const Pokemon &p)
     hitPointMax(p.hitPointMax),
     attack(p.attack),
     defense(p.defense),
-    generation(p.generation)
+    generation(p.generation  )
 {
     cout<<"Recopie"<<endl;
+
     countpok++;
 }
 //destructeur
@@ -96,8 +97,8 @@ void Pokemon::displayInfo() const {
 //methode d'attaque
 void Pokemon::attackPokemon(Pokemon& p) {
     cout<<this->getName()<<"attaque "<<p.getName()<<endl;
-    if (attack > defense) {
-        double newHitPoint=p.getHitPoint()-(attack-defense);
+    if (getAttack() > p.getDefense()) {
+        double newHitPoint=p.getHitPoint()-(getAttack()-p.getDefense());
         p.setHitPoint(newHitPoint);
         if (p.getHitPoint()<=0) {
             cout<<p.getName()<<"est décédé"<<endl;
@@ -108,11 +109,6 @@ void Pokemon::attackPokemon(Pokemon& p) {
     else
     {
         cout << "L'attaque est bloquee par la defense !" << endl;
-    }
-
-    Pokemon* Pokemon::clone() const
-    {
-        return new Pokemon(*this);
     }
 
 }

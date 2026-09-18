@@ -1,22 +1,26 @@
-#ifndef TP_POKEMON_POKEDEX_H
-#define TP_POKEMON_POKEDEX_H
-
 #include "Pokemon_vector.h"
+
 #include <string>
+using namespace std;
+/**
+ * Cette classe contient tous les Pokémon disponibles.
+ * Elle recupere cette liste depuis un fichier CSV.
+ */
+class Pokedex : public Pokemon_Vector {
+    private:
+        static Pokedex* pinstance;
+        string fichier_csv;
+    protected:
+        Pokedex(const string& fichier_csv);
+        ~Pokedex();
 
-using std::string;
+    public:
+        Pokedex(Pokedex& autre_pokedex) = delete;
+        Pokedex& operator=(const Pokedex&) = delete;
 
-class Pokedex : public Pokemon_vector {
-private:
-    static Pokedex* instance;
-    Pokedex();
+        static Pokedex* getInstance(const string& fichier_csv );
+        Pokemon* extrairePokemon(int id);
 
-    void loadFromCSV(const string& filename);
-
-public:
-    static Pokedex& getInstance();
-    Pokemon* find_by_ID(int id);
-    Pokemon* find_by_name(string name);
-    void display() const override;
-}
-#endif //TP_POKEMON_POKEDEX_H
+        void display() const override;  
+       
+};
