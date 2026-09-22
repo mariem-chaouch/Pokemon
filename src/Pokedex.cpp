@@ -40,6 +40,9 @@ Pokedex::Pokedex(const string& fichier_csv) : Pokemon_Vector() {
                                              defenseValue,generation));
     }
 }
+
+Pokedex::~Pokedex() = default;
+
 /**
  * Cree une unique instance de cette classe
  * @param nom_de_fichier designe le nom du fichier où sont stockés les Pokémons, fichier attendu au format CSV.
@@ -51,7 +54,19 @@ Pokedex* Pokedex::getInstance(const string& fichier_csv) {
     }
     return pinstance;
 }
-
+/**
+* Cette méthode permet d'extraire un Pokémon du Pokedex en fonction de son identifiant.
+* @param id identifiant du Pokémon à extraire
+ * @return un pointeur sur le Pokémon correspondant à l'identifiant donné, ou nullptr si aucun Pokémon n'est trouvé.
+*/
+Pokemon* Pokedex::extrairePokemon(int id) {
+    Pokemon* pokemon = findById(id);
+    if (pokemon != nullptr) {
+        removePokemon(pokemon);
+        return pokemon;
+    }
+    return nullptr; // Retourne nullptr si aucun Pokémon avec l'ID donné n'est trouvé
+}
 
 void Pokedex::display() const  {
     std::cout << "Pokedex : " << std::endl;
@@ -59,7 +74,4 @@ void Pokedex::display() const  {
         pokemon->displayInfo();
     }
 }
-
-
-
 

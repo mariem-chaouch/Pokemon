@@ -35,6 +35,10 @@ Pokemon::~Pokemon() {
     countpok--;
 }
 
+Pokemon* Pokemon::clone() const {
+    return new Pokemon(*this);
+}
+
 //getters
 int Pokemon::getId() const {
     return id;

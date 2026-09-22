@@ -40,7 +40,17 @@ void Pokemon_Vector::removePokemon(Pokemon* pokemon) {
 
 Pokemon_Vector::~Pokemon_Vector() {
     for (Pokemon* p : Pokemons) {
-        delete p; // Assuming ownership of Pokemon pointers
+        delete p;
     }
     Pokemons.clear();
+}
+
+size_t Pokemon_Vector::size() const
+{
+    return Pokemons.size();
+}
+
+const vector<Pokemon*>& Pokemon_Vector::getPokemons() const
+{
+    return Pokemons;
 }

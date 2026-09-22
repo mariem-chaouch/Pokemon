@@ -3,6 +3,10 @@
 
 # CMake build directories
 cmake-build-*/
+/build/
+
+# Editor-specific local configuration
+.vscode/
 
 # vcpkg
 vcpkg_installed/

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Pokemon_vector.h"
 
 #include <string>

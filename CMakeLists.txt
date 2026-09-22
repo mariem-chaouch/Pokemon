@@ -12,10 +12,13 @@ add_executable(Tp_pokemon
     src/Pokemon_vector.cpp
     Inc/Pokedex.h
     src/Pokedex.cpp
-    Inc/Pokemon_party.h
-    src/Pokemon_party.cpp
-    Inc/Pokemon_attack.h
-    src/Pokemon_attack.cpp
+    Inc/Pokemon_Party.h
+    src/Pokemon_Party.cpp
+    Inc/Pokemon_Attack.h
+    src/Pokemon_Attack.cpp
 )
 
 target_include_directories(Tp_pokemon PRIVATE Inc)
+
+find_package(SFML 2.6 COMPONENTS graphics window system CONFIG REQUIRED)
+target_link_libraries(Tp_pokemon PRIVATE sfml-graphics sfml-window sfml-system)

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Pokemon.h"
 #include <vector>
 
@@ -20,5 +22,8 @@ public:
     virtual void addPokemon(Pokemon* pokemon);
     virtual void removePokemon(Pokemon* pokemon);
 
+    size_t size() const;
+    /** Vue en lecture seule des Pokemon de la collection, utile pour l'interface. */
+    const vector<Pokemon*>& getPokemons() const;
     virtual void display() const = 0;
 };
