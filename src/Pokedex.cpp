@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 
 Pokedex* Pokedex::pinstance = {nullptr};
@@ -39,6 +40,9 @@ Pokedex::Pokedex(const string& fichier_csv) : Pokemon_Vector() {
         Pokemons.push_back(new Pokemon(id,lineData.at(1),hitPoint,hitPoint,attackValue,
                                              defenseValue,generation));
     }
+    std::sort(Pokemons.begin(), Pokemons.end(), [](const Pokemon* a, const Pokemon* b) {
+        return a->getName() == b->getName() ? a->getId() < b->getId() : a->getName() < b->getName();
+    });
 }
 
 Pokedex::~Pokedex() = default;
@@ -74,4 +78,3 @@ void Pokedex::display() const  {
         pokemon->displayInfo();
     }
 }
-
