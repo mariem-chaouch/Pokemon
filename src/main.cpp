@@ -1,6 +1,7 @@
 #include "Etat.h"
 
 #include <filesystem>
+#include <iostream>
 #include <map>
 
 namespace {
@@ -67,18 +68,23 @@ int main(int argc, char* argv[]) {
     if (argc > 0) dossierExecutable = fs::absolute(argv[0], erreur).parent_path();
 
     Pokedex* pokedex = Pokedex::getInstance(cheminPokedex());
+    if (pokedex->getPokemons().empty()) {
+        std::cerr << "Impossible de charger le Pokedex : Data/pokedex.csv est absent ou vide.\n";
+        return 1;
+    }
     Pokemon_Party party;
 
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Pokemon Attack - Selection d'equipe");
     window.setFramerateLimit(60);
     sf::Font font;
     if (!chargerPolice(font)) return 1;
-    sf::Texture textureFondAccueil, textureJauge, textureVs;
+    sf::Texture textureFondAccueil, textureFondExploration, textureJauge, textureVs;
     if (!chargerTexture(textureFondAccueil, "image_pokedex-20260914/bg.jpg") ||
+        !chargerTexture(textureFondExploration, "image_pokedex-20260914/bgexp.jpg") ||
         !chargerTexture(textureJauge, "healthGauge.png") || !chargerTexture(textureVs, "versusSmall.png")) return 1;
 
     std::map<int, sf::Texture> texturesPokemon;
-    ContexteJeu contexte{*pokedex, party, window, font, textureFondAccueil, textureJauge, textureVs,
+    ContexteJeu contexte{*pokedex, party, window, font, textureFondAccueil, textureFondExploration, textureJauge, textureVs,
                          [&texturesPokemon](int id) { return texturePokemon(id, texturesPokemon); }};
     contexte.equipe.fill(-1);
     MoteurJeu moteur;

@@ -4,6 +4,9 @@ Petit jeu de combat Pokémon en C++20 avec SFML 2.6. Le joueur choisit une
 équipe de six Pokémon, explore, tente des captures et peut défier une équipe
 adverse à l'arène.
 
+Pour une explication détaillée de l'architecture, des écrans et du dessin SFML,
+consultez [ETUDE_DU_JEU.md](ETUDE_DU_JEU.md).
+
 ## Prérequis
 
 - CMake 4.3 ou plus récent
@@ -61,5 +64,6 @@ du joueur et `Pokemon_Attack` son équipe de combat.
 Le Pokédex CSV doit conserver son en-tête et les colonnes utilisées dans
 `src/Pokedex.cpp` : identifiant (colonne 0), nom (1), PV (5), attaque (6),
 défense (7) et génération (11). Les images des Pokémon sont recherchées dans
-`Data/image_pokedex-20260914/pokemon/<id>.png`. Les autres textures utilisées
-par le jeu sont `bg.jpg`, `healthGauge.png` et `versusSmall.png` dans `Data/`.
+`Data/image_pokedex-20260914/pokemon/<id>.png`. Les fonds `bg.jpg` et `bgexp.jpg`,
+ainsi que `healthGauge.png` et `versusSmall.png`, fournissent les autres textures
+utilisées par le jeu.

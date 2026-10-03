@@ -17,7 +17,15 @@ protected:
     Pokemon* findByName(const string& name);
 
 public:
+    Pokemon_Vector() = default;
     virtual ~Pokemon_Vector();
+
+    // Cette classe detient les pointeurs de Pokemons : une copie superficielle
+    // ferait detruire les memes objets deux fois.
+    Pokemon_Vector(const Pokemon_Vector&) = delete;
+    Pokemon_Vector& operator=(const Pokemon_Vector&) = delete;
+    Pokemon_Vector(Pokemon_Vector&&) = delete;
+    Pokemon_Vector& operator=(Pokemon_Vector&&) = delete;
 
     virtual void addPokemon(Pokemon* pokemon);
     virtual void removePokemon(Pokemon* pokemon);

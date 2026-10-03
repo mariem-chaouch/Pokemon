@@ -6,7 +6,6 @@
 #include <algorithm>
 
 
-Pokedex* Pokedex::pinstance = {nullptr};
 /**
  * Constructeur de la classe
  * @param fileName Nom du fichier ou sont stockés les Pokémons, attendu au format CSV
@@ -53,10 +52,8 @@ Pokedex::~Pokedex() = default;
  * @return une reference sur l'instance si elle existait deja, et en cree une sinon.
  */
 Pokedex* Pokedex::getInstance(const string& fichier_csv) {
-    if (pinstance == nullptr) {
-        pinstance = new Pokedex(fichier_csv);
-    }
-    return pinstance;
+    static Pokedex instance(fichier_csv);
+    return &instance;
 }
 /**
 * Cette méthode permet d'extraire un Pokémon du Pokedex en fonction de son identifiant.

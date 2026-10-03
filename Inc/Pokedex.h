@@ -10,14 +10,13 @@ using namespace std;
  */
 class Pokedex : public Pokemon_Vector {
     private:
-        static Pokedex* pinstance;
         string fichier_csv;
     protected:
         Pokedex(const string& fichier_csv);
         ~Pokedex();
 
     public:
-        Pokedex(Pokedex& autre_pokedex) = delete;
+        Pokedex(const Pokedex& autre_pokedex) = delete;
         Pokedex& operator=(const Pokedex&) = delete;
 
         static Pokedex* getInstance(const string& fichier_csv );

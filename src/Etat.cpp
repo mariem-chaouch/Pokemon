@@ -125,10 +125,6 @@ void bouton(ContexteJeu& contexte, const sf::FloatRect& zone,
     contexte.window.draw(label);
 }
 
-double degats(const Pokemon& attaquant, const Pokemon& defenseur) {
-    return std::max(1.0, attaquant.getAttack() - defenseur.getDefense() * 0.35);
-}
-
 bool estClicGauche(const sf::Event& evenement) {
     return evenement.type == sf::Event::MouseButtonPressed &&
            evenement.mouseButton.button == sf::Mouse::Left;
@@ -357,10 +353,17 @@ std::unique_ptr<Etat> EtatExploration::traiterEvenement(ContexteJeu& c, const sf
 void EtatExploration::dessiner(ContexteJeu& c) const {
     auto& window = c.window;
     auto& font = c.font;
-    sf::RectangleShape ciel({1280.f, 760.f}); ciel.setFillColor(sf::Color(104, 183, 218)); window.draw(ciel);
-    sf::RectangleShape bandeau({1280.f, 112.f}); bandeau.setFillColor(sf::Color(24, 50, 79, 235)); window.draw(bandeau);
-    sf::CircleShape colline(260.f); colline.setPosition(425.f, 360.f); colline.setFillColor(sf::Color(76, 166, 107)); window.draw(colline);
-    sf::RectangleShape sol({1280.f, 180.f}); sol.setPosition(0.f, 580.f); sol.setFillColor(sf::Color(63, 147, 91)); window.draw(sol);
+    const sf::Vector2u tailleFond = c.textureFondExploration.getSize();
+    sf::Sprite fond(c.textureFondExploration);
+    const float echelle = std::max(1280.f / static_cast<float>(tailleFond.x),
+                                   760.f / static_cast<float>(tailleFond.y));
+    fond.setScale(echelle, echelle);
+    fond.setPosition((1280.f - tailleFond.x * echelle) / 2.f,
+                     (760.f - tailleFond.y * echelle) / 2.f);
+    window.draw(fond);
+    sf::RectangleShape bandeau({1280.f, 112.f});
+    bandeau.setFillColor(sf::Color(20, 42, 70, 185));
+    window.draw(bandeau);
     texte(window, font, "EXPLORATION", 40, {490.f, 45.f}, sf::Color(255, 215, 70));
     const Pokemon* compagnon = c.pokemonAttack->getPokemons().front();
     if (const sf::Texture* texture = c.texturePokemon(compagnon->getId())) {
@@ -371,11 +374,25 @@ void EtatExploration::dessiner(ContexteJeu& c) const {
     }
     sf::RectangleShape info({500.f, 74.f}); info.setPosition(390.f, 190.f); info.setFillColor(sf::Color(22, 65, 105, 220)); window.draw(info);
     texte(window, font, compagnon->getName() + " t'accompagne", 24, {500.f, 204.f}, sf::Color::White);
-    texte(window, font, std::to_string(c.pokemonAttack->size()) + " Pokemon dans ton equipe", 18, {525.f, 238.f}, sf::Color(198, 228, 246));
-    bouton(c, actionExploration1, "RENCONTRER UN POKEMON", true);
-    bouton(c, actionExploration2, "DEFIER L'ARENE", true);
+    texte(window, font, "Ton equipe : " + std::to_string(c.pokemonAttack->size()) +
+          " | Ta collection : " + std::to_string(c.party.size()), 18, {465.f, 238.f}, sf::Color(198, 228, 246));
+    sf::RectangleShape panneauRencontre({400.f, 145.f});
+    panneauRencontre.setPosition(230.f, 460.f);
+    panneauRencontre.setFillColor(sf::Color(22, 65, 88, 225));
+    panneauRencontre.setOutlineThickness(2.f);
+    panneauRencontre.setOutlineColor(sf::Color(130, 210, 170));
+    window.draw(panneauRencontre);
+    sf::RectangleShape panneauArene({400.f, 145.f});
+    panneauArene.setPosition(650.f, 460.f);
+    panneauArene.setFillColor(sf::Color(22, 65, 88, 225));
+    panneauArene.setOutlineThickness(2.f);
+    panneauArene.setOutlineColor(sf::Color(255, 190, 100));
+    window.draw(panneauArene);
+    bouton(c, actionExploration1, "RENCONTRE SAUVAGE", true);
+    bouton(c, actionExploration2, "COMBAT D'ARENE", true);
+    texte(window, font, "Tente de capturer un nouveau Pokemon", 15, {270.f, 563.f}, sf::Color(218, 239, 226));
+    texte(window, font, "Affronte les six membres de l'arene", 15, {695.f, 563.f}, sf::Color(250, 226, 195));
     bouton(c, ouvrirCollection, "MA COLLECTION", true);
-    texte(window, font, "Clique sur une action pour continuer", 17, {485.f, 590.f}, sf::Color(240, 250, 255));
 }
 
 std::unique_ptr<Etat> EtatCollection::traiterEvenement(ContexteJeu& c, const sf::Event& e) {
@@ -383,9 +400,9 @@ std::unique_ptr<Etat> EtatCollection::traiterEvenement(ContexteJeu& c, const sf:
     const sf::Vector2i souris(e.mouseButton.x, e.mouseButton.y);
     const std::size_t maximum = dernierDebutDePage(c.party.getPokemons().size());
     if (contient(pageCollectionPrecedente, souris)) {
-        c.debutListe = c.debutListe > CANDIDATS_VISIBLES ? c.debutListe - CANDIDATS_VISIBLES : 0;
+        c.debutCollection = c.debutCollection > CANDIDATS_VISIBLES ? c.debutCollection - CANDIDATS_VISIBLES : 0;
     } else if (contient(pageCollectionSuivante, souris)) {
-        c.debutListe = std::min(maximum, c.debutListe + CANDIDATS_VISIBLES);
+        c.debutCollection = std::min(maximum, c.debutCollection + CANDIDATS_VISIBLES);
     } else if (contient(retourCollection, souris)) {
         return std::make_unique<EtatExploration>();
     }
@@ -399,17 +416,17 @@ void EtatCollection::dessiner(ContexteJeu& c) const {
     window.draw(fond);
     texte(window, c.font, "MA COLLECTION", 36, {45.f, 35.f}, sf::Color(255, 215, 70));
     bouton(c, retourCollection, "RETOUR", true);
-    const auto& pokemons = c.pokedex.getPokemons();
-    const std::size_t visibles = c.debutListe < pokemons.size()
-        ? std::min(CANDIDATS_VISIBLES, pokemons.size() - c.debutListe) : 0;
+    const auto& pokemons = c.party.getPokemons();
+    const std::size_t visibles = c.debutCollection < pokemons.size()
+        ? std::min(CANDIDATS_VISIBLES, pokemons.size() - c.debutCollection) : 0;
     for (std::size_t i = 0; i < visibles; ++i) {
         const sf::FloatRect zone(45.f + static_cast<float>(i % 4) * 300.f,
                                  130.f + static_cast<float>(i / 4) * 230.f, 260.f, 190.f);
-        carte(c, zone, pokemons[c.debutListe + i], false);
+        carte(c, zone, pokemons[c.debutCollection + i], false);
     }
     const std::size_t maximum = dernierDebutDePage(pokemons.size());
-    bouton(c, pageCollectionPrecedente, "PREC.", c.debutListe > 0);
-    bouton(c, pageCollectionSuivante, "SUIV.", c.debutListe < maximum);
+    bouton(c, pageCollectionPrecedente, "PREC.", c.debutCollection > 0);
+    bouton(c, pageCollectionSuivante, "SUIV.", c.debutCollection < maximum);
     texte(window, c.font, "Pokemons possedes : " + std::to_string(pokemons.size()), 18,
           {45.f, 680.f}, sf::Color(195, 215, 240));
 }
@@ -422,8 +439,16 @@ std::unique_ptr<Etat> EtatRencontreCapture::traiterEvenement(ContexteJeu& c, con
         c.captureReussie = std::uniform_int_distribution<int>(1, 100)(c.aleatoire) <= 65;
         const auto& catalogue = c.pokedex.getPokemons();
         if (c.captureReussie && !catalogue.empty()) {
-            c.party.addPokemon(catalogue[c.indiceSauvage]->clone());
-            c.messageCapture = "Capture reussie ! Le Pokemon a ete ajoute a votre collection.";
+            const Pokemon* sauvage = catalogue[c.indiceSauvage];
+            const bool dejaPossede = std::any_of(c.party.getPokemons().begin(), c.party.getPokemons().end(),
+                [sauvage](const Pokemon* pokemon) { return pokemon->getId() == sauvage->getId(); });
+            if (dejaPossede) {
+                c.messageCapture = "Capture reussie, mais " + sauvage->getName() + " est deja dans ta collection.";
+            } else {
+                c.party.addPokemon(sauvage->clone());
+                c.debutCollection = dernierDebutDePage(c.party.size());
+                c.messageCapture = sauvage->getName() + " rejoint ta collection !";
+            }
         } else {
             c.messageCapture = "La Pokeball se brise : le Pokemon s'echappe.";
         }
@@ -463,35 +488,44 @@ std::unique_ptr<Etat> EtatCombatArene::traiterEvenement(ContexteJeu& c, const sf
         const Pokemon* joueur = c.pokemonAttack->getPokemons()[c.combattantJoueur];
         const auto& catalogue = c.pokedex.getPokemons();
         const Pokemon* adversaire = catalogue[c.equipeAdverse[c.combattantAdverse]];
-        const double degatsJoueur = degats(*joueur, *adversaire);
         double& pvAdversaire = c.pvEquipeAdverse[c.combattantAdverse];
-        pvAdversaire = std::max(0.0, pvAdversaire - degatsJoueur);
-        c.messageCombat = joueur->getName() + " inflige " + std::to_string(static_cast<int>(degatsJoueur)) + " degats a " + adversaire->getName() + ".";
+        Pokemon cibleAdverse(*adversaire);
+        cibleAdverse.setHitPoint(pvAdversaire);
+        joueur->attackPokemon(cibleAdverse);
+        const double degatsJoueur = pvAdversaire - cibleAdverse.getHitPoint();
+        pvAdversaire = cibleAdverse.getHitPoint();
+        c.messageCombat = joueur->getName() + " attaque " + adversaire->getName() + " !\n" +
+            adversaire->getName() + " perd " + std::to_string(static_cast<int>(degatsJoueur)) +
+            " PV (" + std::to_string(static_cast<int>(pvAdversaire)) + " PV restants).";
         if (pvAdversaire <= 0.0) {
-            c.messageCombat += " " + adversaire->getName() + " est K.O.";
+            c.messageCombat += "\n" + adversaire->getName() + " est K.O. !";
             ++c.combattantAdverse;
             if (c.combattantAdverse == TEAM_SIZE) {
                 c.victoire = true;
                 return std::make_unique<EtatGameOver>();
             }
             const Pokemon* prochain = catalogue[c.equipeAdverse[c.combattantAdverse]];
-            c.messageCombat += " " + prochain->getName() + " entre en combat !";
+            c.messageCombat += "\n" + prochain->getName() + " entre en combat !";
             return nullptr;
         }
-        const double degatsEnnemi = degats(*adversaire, *joueur);
         double& pvJoueur = c.pvEquipeJoueur[c.combattantJoueur];
-        pvJoueur = std::max(0.0, pvJoueur - degatsEnnemi);
-        c.messageCombat += " " + adversaire->getName() + " contre-attaque : " +
-                           std::to_string(static_cast<int>(degatsEnnemi)) + " degats.";
+        Pokemon cibleJoueur(*joueur);
+        cibleJoueur.setHitPoint(pvJoueur);
+        adversaire->attackPokemon(cibleJoueur);
+        const double degatsEnnemi = pvJoueur - cibleJoueur.getHitPoint();
+        pvJoueur = cibleJoueur.getHitPoint();
+        c.messageCombat += "\n" + adversaire->getName() + " contre-attaque ! " + joueur->getName() +
+            " perd " + std::to_string(static_cast<int>(degatsEnnemi)) + " PV (" +
+            std::to_string(static_cast<int>(pvJoueur)) + " PV restants).";
         if (pvJoueur <= 0.0) {
-            c.messageCombat += " " + joueur->getName() + " est K.O.";
+            c.messageCombat += "\n" + joueur->getName() + " est K.O. !";
             ++c.combattantJoueur;
             if (c.combattantJoueur == TEAM_SIZE) {
                 c.victoire = false;
                 return std::make_unique<EtatGameOver>();
             }
             const Pokemon* prochain = c.pokemonAttack->getPokemons()[c.combattantJoueur];
-            c.messageCombat += " " + prochain->getName() + " entre en combat !";
+            c.messageCombat += "\n" + prochain->getName() + " entre en combat !";
         }
     } else if (contient(quitterCombat, souris)) {
         return std::make_unique<EtatExploration>();
@@ -505,29 +539,43 @@ void EtatCombatArene::dessiner(ContexteJeu& c) const {
     sf::RectangleShape fond({1280.f, 760.f}); fond.setFillColor(sf::Color(18, 38, 64)); window.draw(fond);
     sf::RectangleShape haut({1280.f, 130.f}); haut.setFillColor(sf::Color(27, 53, 84)); window.draw(haut);
     texte(window, font, "COMBAT D'ARENE", 38, {430.f, 38.f}, sf::Color(255, 215, 70));
-    bouton(c, quitterCombat, "FUIR LE COMBAT", false);
+    bouton(c, quitterCombat, "FUIR LE COMBAT", true);
     const auto& catalogue = c.pokedex.getPokemons();
     texte(window, font, "TON EQUIPE", 22, {205.f, 145.f}, sf::Color(130, 215, 255));
     texte(window, font, "EQUIPE ADVERSE", 22, {900.f, 145.f}, sf::Color(255, 155, 145));
     for (std::size_t i = 0; i < TEAM_SIZE; ++i) {
         const Pokemon* membre = c.pokemonAttack->getPokemons()[i];
         const float x = 55.f + static_cast<float>(i % 2) * 215.f;
-        const float y = 185.f + static_cast<float>(i / 2) * 125.f;
-        carte(c, {x, y, 190.f, 105.f}, membre, i == c.combattantJoueur, static_cast<int>(i + 1));
+        const float y = 160.f + static_cast<float>(i / 2) * 110.f;
+        carte(c, {x, y, 190.f, 80.f}, membre, i == c.combattantJoueur, static_cast<int>(i + 1));
+        afficherJauge(window, c.textureJauge, {x + 166.f, y + 5.f},
+                      membre->getHitPointMax() > 0.0
+                          ? static_cast<float>(c.pvEquipeJoueur[i] / membre->getHitPointMax()) : 0.f,
+                      0.35f);
         texte(window, font, "PV " + std::to_string(static_cast<int>(c.pvEquipeJoueur[i])) + "/" +
-              std::to_string(static_cast<int>(membre->getHitPointMax())), 14, {x + 8.f, y + 82.f}, sf::Color(30, 54, 78));
+              std::to_string(static_cast<int>(membre->getHitPointMax())), 14, {x + 8.f, y + 81.f}, sf::Color(220, 236, 246));
 
         const Pokemon* rival = catalogue[c.equipeAdverse[i]];
         const float xr = 845.f + static_cast<float>(i % 2) * 215.f;
-        carte(c, {xr, y, 190.f, 105.f}, rival, i == c.combattantAdverse, static_cast<int>(i + 1));
+        carte(c, {xr, y, 190.f, 80.f}, rival, i == c.combattantAdverse, static_cast<int>(i + 1));
+        afficherJauge(window, c.textureJauge, {xr + 166.f, y + 5.f},
+                      rival->getHitPointMax() > 0.0
+                          ? static_cast<float>(c.pvEquipeAdverse[i] / rival->getHitPointMax()) : 0.f,
+                      0.35f);
         texte(window, font, "PV " + std::to_string(static_cast<int>(c.pvEquipeAdverse[i])) + "/" +
-              std::to_string(static_cast<int>(rival->getHitPointMax())), 14, {xr + 8.f, y + 82.f}, sf::Color(30, 54, 78));
+              std::to_string(static_cast<int>(rival->getHitPointMax())), 14, {xr + 8.f, y + 81.f}, sf::Color(255, 215, 205));
     }
     sf::Sprite versus(c.textureVs);
     versus.setPosition(594.f, 286.f);
     versus.setScale(1.5f, 1.5f);
     window.draw(versus);
-    texte(window, font, c.messageCombat, 16, {90.f, 585.f}, sf::Color(255, 225, 150));
+    sf::RectangleShape journal({1100.f, 92.f});
+    journal.setPosition(90.f, 493.f);
+    journal.setFillColor(sf::Color(10, 25, 45, 225));
+    journal.setOutlineThickness(1.f);
+    journal.setOutlineColor(sf::Color(92, 145, 180));
+    window.draw(journal);
+    texte(window, font, c.messageCombat, 15, {105.f, 498.f}, sf::Color(255, 230, 165));
     bouton(c, actionCombat, "ATTAQUER", true);
     texte(window, font, "Combattants actifs : " +
           c.pokemonAttack->getPokemons()[c.combattantJoueur]->getName() + " VS " +
@@ -556,8 +604,12 @@ void EtatGameOver::dessiner(ContexteJeu& c) const {
     window.draw(panneau);
     texte(window, font, c.victoire ? "VICTOIRE !" : "FIN DE PARTIE", 52,
           {475.f, 220.f}, c.victoire ? sf::Color(150, 240, 170) : sf::Color(235, 82, 76));
-    texte(window, font, c.victoire ? "L'adversaire n'a plus de points de vie." :
-          "Votre Pokemon n'a plus de points de vie.", 23, {370.f, 330.f});
+    texte(window, font, c.victoire ? "Toute l'equipe adverse est K.O. !" :
+          "Toute votre equipe est K.O. !", 23, {385.f, 320.f});
+    sf::Text resumeCombat(c.messageCombat, font, 17);
+    resumeCombat.setPosition(360.f, 365.f);
+    resumeCombat.setFillColor(sf::Color(255, 225, 150));
+    window.draw(resumeCombat);
     bouton(c, retourAccueil, "RETOUR A L'ACCUEIL", true);
     texte(window, font, "Clique sur le bouton pour revenir", 17, {485.f, 545.f}, sf::Color(190, 210, 235));
 }

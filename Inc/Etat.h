@@ -20,6 +20,7 @@ struct ContexteJeu {
     sf::RenderWindow& window;
     sf::Font& font;
     sf::Texture& textureFondAccueil;
+    sf::Texture& textureFondExploration;
     sf::Texture& textureJauge;
     sf::Texture& textureVs;
     std::function<const sf::Texture*(int)> texturePokemon;

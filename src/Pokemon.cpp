@@ -1,4 +1,5 @@
 #include "../Inc/Pokemon.h"
+#include <algorithm>
 #include <iostream>
 using namespace std;
 
@@ -25,13 +26,10 @@ Pokemon::Pokemon(const Pokemon &p)
     defense(p.defense),
     generation(p.generation  )
 {
-    cout<<"Recopie"<<endl;
-
     countpok++;
 }
 //destructeur
 Pokemon::~Pokemon() {
-    cout<<"Destructeur"<<endl;
     countpok--;
 }
 
@@ -100,19 +98,6 @@ void Pokemon::displayInfo() const {
 }
 //methode d'attaque
 void Pokemon::attackPokemon(Pokemon& p) {
-    cout<<this->getName()<<"attaque "<<p.getName()<<endl;
-    if (getAttack() > p.getDefense()) {
-        double newHitPoint=p.getHitPoint()-(getAttack()-p.getDefense());
-        p.setHitPoint(newHitPoint);
-        if (p.getHitPoint()<=0) {
-            cout<<p.getName()<<"est décédé"<<endl;
-        }
-        else
-            cout<<p.getName()<<"a encore :"<<p.getHitPoint()<<"point de vie."<<endl;
-    }
-    else
-    {
-        cout << "L'attaque est bloquee par la defense !" << endl;
-    }
-
+    const double degats = std::max(1.0, getAttack() - p.getDefense() * 0.35);
+    p.setHitPoint(std::max(0.0, p.getHitPoint() - degats));
 }
