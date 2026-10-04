@@ -73,6 +73,14 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     Pokemon_Party party;
+    // Le catalogue complet reste disponible pour les rencontres et les captures.
+    for (int id : POKEMON_DEPART_IDS) {
+        for (const Pokemon* pokemon : pokedex->getPokemons()) {
+            if (pokemon->getId() != id) continue;
+            party.addPokemon(pokemon->clone());
+            break;
+        }
+    }
 
     sf::RenderWindow window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Pokemon Attack - Selection d'equipe");
     window.setFramerateLimit(60);

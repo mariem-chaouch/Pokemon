@@ -44,7 +44,7 @@ public:
     void setGeneration(int g);
 
     //methodes
-    void attackPokemon(Pokemon& p);
+    void attackPokemon(Pokemon& p) const;
     void displayInfo() const;
 
 

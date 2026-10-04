@@ -13,6 +13,8 @@
 #include <random>
 #include <string>
 
+inline constexpr std::array<int, 12> POKEMON_DEPART_IDS{1, 4, 7, 10, 16, 19, 21, 23, 27, 29, 32, 35};
+
 /** Donnees partagees entre les ecrans : ressources graphiques et progression du jeu. */
 struct ContexteJeu {
     Pokedex& pokedex;

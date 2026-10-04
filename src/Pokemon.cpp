@@ -97,7 +97,7 @@ void Pokemon::displayInfo() const {
     cout<<"Generation :"<<generation<<endl;
 }
 //methode d'attaque
-void Pokemon::attackPokemon(Pokemon& p) {
+void Pokemon::attackPokemon(Pokemon& p) const {
     const double degats = std::max(1.0, getAttack() - p.getDefense() * 0.35);
     p.setHitPoint(std::max(0.0, p.getHitPoint() - degats));
 }
