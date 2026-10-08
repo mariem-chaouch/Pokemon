@@ -59,6 +59,87 @@ partagées entre ces états.
 depuis `Data/pokedex.csv`, tandis que `Pokemon_Party` représente la collection
 du joueur et `Pokemon_Attack` son équipe de combat.
 
+## Diagramme de classes
+
+Le diagramme ci-dessous présente les principales classes métier et la structure
+des écrans. `MoteurJeu` conserve l'état affiché et chaque état reçoit le contexte
+partagé pour traiter les événements et dessiner l'écran.
+
+```mermaid
+classDiagram
+    class MoteurJeu {
+        -unique_ptr~Etat~ etat_
+        +traiterEvenement(ContexteJeu, Event)
+        +dessiner(ContexteJeu)
+    }
+    class Etat {
+        <<abstract>>
+        +traiterEvenement(ContexteJeu, Event)*
+        +dessiner(ContexteJeu)*
+    }
+    class EtatAccueil
+    class EtatSelectionEquipe
+    class EtatExploration
+    class EtatRencontreCapture
+    class EtatCollection
+    class EtatCombatArene
+    class EtatGameOver
+    class ContexteJeu {
+        +Pokedex& pokedex
+        +Pokemon_Party& party
+        +array~int,6~ equipe
+        +unique_ptr~Pokemon_Attack~ pokemonAttack
+        +bool victoire
+    }
+    class Pokemon {
+        -int id
+        -string name
+        -double hitPoint
+        -double attack
+        -double defense
+        +clone()
+        +attackPokemon(Pokemon)
+    }
+    class Pokemon_Vector {
+        <<abstract>>
+        #vector~Pokemon*~ Pokemons
+        +addPokemon(Pokemon)
+        +removePokemon(Pokemon)
+        +display()*
+    }
+    class Pokedex {
+        -string fichier_csv
+        +getInstance(fichier_csv)$
+        +extrairePokemon(id)
+    }
+    class Pokemon_Party {
+        +extrairePokemon(id)
+        +extrairePremierPokemon()
+    }
+    class Pokemon_Attack {
+        +creerDepuisParty(party)
+        +reintegrerDansParty(party)
+        +ajouterDepuisParty(party, id)
+    }
+
+    Etat <|-- EtatAccueil
+    Etat <|-- EtatSelectionEquipe
+    Etat <|-- EtatExploration
+    Etat <|-- EtatRencontreCapture
+    Etat <|-- EtatCollection
+    Etat <|-- EtatCombatArene
+    Etat <|-- EtatGameOver
+    Pokemon_Vector <|-- Pokedex
+    Pokemon_Vector <|-- Pokemon_Party
+    Pokemon_Vector <|-- Pokemon_Attack
+    Pokemon_Vector "1" o-- "0..*" Pokemon : contient
+    ContexteJeu --> Pokedex : référence
+    ContexteJeu --> Pokemon_Party : référence
+    ContexteJeu --> Pokemon_Attack : équipe de combat
+    MoteurJeu o--> Etat : état courant
+    MoteurJeu ..> ContexteJeu : transmet
+```
+
 ## Données et ressources
 
 Le Pokédex CSV doit conserver son en-tête et les colonnes utilisées dans
